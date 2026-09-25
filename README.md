@@ -84,7 +84,7 @@ For production systems, additional RAM and NVMe storage are recommended based on
 Run the installation script:
 
 ```bash
-wget -O- https://raw.githubusercontent.com/nemerald-voip/fspbx/main/install/install-fspbx.sh | bash
+sudo wget -O- https://raw.githubusercontent.com/will-1966/fspbx/main/install/install-fspbx.sh | sudo bash
 ```
 
 After installation, open the server in your browser and complete the configuration.
