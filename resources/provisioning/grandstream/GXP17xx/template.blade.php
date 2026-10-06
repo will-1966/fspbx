@@ -1,4 +1,4 @@
-{{-- version: 1.1.11 --}}
+{{-- version: 1.1.13 --}}
 
 @switch($flavor)
 
@@ -6838,7 +6838,17 @@ PVALUES;
 
     // Shared phone behavior matching the established Grandstream templates.
     $set('P2909', 'f1=540,f2=516,c=70/16-55/16-70/300;');
-    $set('P345', 'f1=540,f2=516,c=70/16-55/16-70/300;');
+    $set('P345', $settings['grandstream_system_ring'] ?? 'f1=540,f2=516,c=70/16-55/16-70/300;');
+    $set('P8398', $settings['grandstream_default_ringtone'] ?? '0');
+
+    // Configured accounts must follow the selected phone-wide ringtone.
+    if (isset($settings['grandstream_default_ringtone'])) {
+        foreach ([1 => 'P104', 2 => 'P423', 3 => 'P523', 4 => 'P623'] as $number => $code) {
+            if ($lineByNumber->has($number)) {
+                $set($code, '5');
+            }
+        }
+    }
     $callWaiting = strtolower((string) ($settings['grandstream_call_waiting'] ?? 'no'));
     $set('P91', in_array($callWaiting, ['1', 'yes', 'true'], true) ? '1' : '0');
 
@@ -6893,6 +6903,8 @@ PVALUES;
         $set($codes['dns'], $settings['grandstream_dns_mode'] ?? '0');
         $set($codes['nat'], $natTraversal);
         $set($codes['register'], '1');
+        // Unregister only this phone on reboot (2 = Instance).
+        $set([1 => 'P81', 2 => 'P411', 3 => 'P511', 4 => 'P611'][$number], '2');
         $set($codes['expires'], $registerExpires);
         $set($codes['subscribe'], '60');
         $set($codes['keepAlive'], '1');

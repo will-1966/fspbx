@@ -22,10 +22,10 @@ class SwitchModuleService
         $modDir = $this->switchDir('mod');
         $confDir = $this->switchDir('conf');
         if (! $modDir || ! File::isDirectory($modDir)) {
-            throw new \RuntimeException('The FreeSWITCH module directory is missing.');
+            throw new \RuntimeException(__('The FreeSWITCH module directory is missing.'));
         }
         if (! $confDir || ! File::isDirectory($confDir.'/autoload_configs')) {
-            throw new \RuntimeException('The FreeSWITCH configuration directory is missing.');
+            throw new \RuntimeException(__('The FreeSWITCH configuration directory is missing.'));
         }
 
         DB::transaction(function () {
@@ -36,7 +36,7 @@ class SwitchModuleService
         });
 
         if (! $this->writeXml()) {
-            throw new \RuntimeException('Unable to write FreeSWITCH modules.conf.xml.');
+            throw new \RuntimeException(__('Unable to write FreeSWITCH modules.conf.xml.'));
         }
     }
 
@@ -99,9 +99,29 @@ class SwitchModuleService
         }
 
         $existing = SwitchModule::query()
-            ->pluck('module_name')
-            ->filter()
-            ->flip();
+            ->get()
+            ->keyBy('module_name');
+
+        // Older discovery created generic Auto entries even for known modules.
+        // Replace only that generated metadata, preserving administrator choices.
+        foreach ($existing as $module) {
+            $name = (string) $module->module_name;
+            $generatedLabel = Str::of($name)->after('mod_')->replace('_', ' ')->title()->toString();
+            if ($module->module_category !== 'Auto'
+                || $module->module_label !== $generatedLabel
+                || (string) $module->module_description !== '') {
+                continue;
+            }
+
+            $defaults = $this->defaultModuleInfo($name);
+            if ($defaults['module_category'] !== 'Auto') {
+                $module->update([
+                    'module_label' => $defaults['module_label'],
+                    'module_category' => $defaults['module_category'],
+                    'module_description' => $defaults['module_description'],
+                ]);
+            }
+        }
 
         $rows = collect(File::files($modDir))
             ->map(fn ($file) => $file->getFilename())
@@ -163,7 +183,7 @@ class SwitchModuleService
         $command = match ($action) {
             'start' => 'load',
             'stop' => 'unload',
-            default => throw new \InvalidArgumentException('Unsupported module action.'),
+            default => throw new \InvalidArgumentException(__('Unsupported module action.')),
         };
 
         $esl = $this->esl();
@@ -171,7 +191,7 @@ class SwitchModuleService
         if (! $esl->isConnected()) {
             return [
                 'success' => false,
-                'messages' => ['error' => ['FreeSWITCH event socket is unavailable.']],
+                'messages' => ['error' => [__('FreeSWITCH event socket is unavailable.')]],
             ];
         }
 
@@ -199,7 +219,7 @@ class SwitchModuleService
             return [
                 'success' => false,
                 'messages' => $this->messageBag([
-                    'FreeSWITCH returned an error.',
+                    __('FreeSWITCH returned an error.'),
                     ...$failures,
                 ], 'error'),
             ];
@@ -208,9 +228,9 @@ class SwitchModuleService
         return [
             'success' => true,
             'messages' => $this->messageBag([
-                ucfirst($action) . ' command sent.',
+                $action === 'start' ? __('Start command sent.') : __('Stop command sent.'),
                 ...$responses,
-                $settled ? 'Runtime status refreshed.' : 'Runtime status may still be updating.',
+                $settled ? __('Runtime status refreshed.') : __('Runtime status may still be updating.'),
             ], 'success'),
         ];
     }
@@ -235,8 +255,8 @@ class SwitchModuleService
         return [
             'success' => true,
             'messages' => $this->messageBag([
-                'Module enabled state toggled.',
-                $xmlWritten ? 'modules.conf.xml updated.' : 'modules.conf.xml was not writable.',
+                __('Module enabled state toggled.'),
+                $xmlWritten ? __('modules.conf.xml updated.') : __('modules.conf.xml was not writable.'),
                 $reloadResponse,
                 ...$responses,
             ], 'success'),
@@ -258,8 +278,8 @@ class SwitchModuleService
         return [
             'success' => true,
             'messages' => $this->messageBag([
-                "Deleted {$modules->count()} module(s).",
-                $xmlWritten ? 'modules.conf.xml updated.' : 'modules.conf.xml was not writable.',
+                trans_choice('Deleted :count module.|Deleted :count modules.', $modules->count()),
+                $xmlWritten ? __('modules.conf.xml updated.') : __('modules.conf.xml was not writable.'),
                 $reloadResponse,
                 ...$responses,
             ], 'success'),
@@ -328,7 +348,7 @@ class SwitchModuleService
 
         return $message !== ''
             ? "FreeSWITCH reloadxml: {$message}"
-            : 'FreeSWITCH XML reload was not confirmed.';
+            : __('FreeSWITCH XML reload was not confirmed.');
     }
 
     private function unloadActiveModules(Collection $modules, Collection $activeNames): array
@@ -342,7 +362,7 @@ class SwitchModuleService
         $esl = $this->esl();
 
         if (! $esl->isConnected()) {
-            return ['FreeSWITCH event socket is unavailable; active modules were not unloaded.'];
+            return [__('FreeSWITCH event socket is unavailable; active modules were not unloaded.')];
         }
 
         $responses = [];
@@ -377,7 +397,7 @@ class SwitchModuleService
 
     private function cleanEslError(string $message): string
     {
-        return trim(preg_replace('/^-ERR\s*/', '', $message)) ?: 'FreeSWITCH returned an error.';
+        return trim(preg_replace('/^-ERR\s*/', '', $message)) ?: __('FreeSWITCH returned an error.');
     }
 
     private function messageBag(array $messages, string $keyPrefix): array
@@ -419,18 +439,16 @@ class SwitchModuleService
     {
         $row = [
             'module_uuid' => (string) Str::uuid(),
-            'module_label' => Str::of($name)->after('mod_')->replace('_', ' ')->title()->toString(),
-            'module_name' => $name,
-            'module_description' => '',
-            'module_category' => 'Auto',
-            'module_order' => 800,
-            'module_enabled' => 'false',
-            'module_default_enabled' => 'false',
+            ...$this->defaultModuleInfo($name),
             'insert_date' => now(),
             'insert_user' => session('user_uuid'),
         ];
 
-        return $useInstallDefaults ? array_replace($row, $this->defaultModuleInfo($name)) : $row;
+        if (! $useInstallDefaults) {
+            $row['module_enabled'] = 'false';
+        }
+
+        return $row;
     }
 
     private function defaultModuleInfo(string $name): array
@@ -444,7 +462,6 @@ class SwitchModuleService
             'module_name' => $name,
             'module_order' => 800,
             'module_enabled' => 'false',
-            'module_default_enabled' => 'false',
             'module_description' => '',
             'module_category' => 'Auto',
         ];

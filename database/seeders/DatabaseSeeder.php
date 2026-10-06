@@ -155,6 +155,10 @@ class DatabaseSeeder extends Seeder
             ['application_name' => 'User Manager', 'permission_name' => 'api_key_update'],
             ['application_name' => 'User Manager', 'permission_name' => 'api_key_delete'],
             ['application_name' => 'System Settings', 'permission_name' => 'scheduled_jobs_manage'],
+            ['application_name' => 'Number Translations', 'permission_name' => 'number_translation_view'],
+            ['application_name' => 'Number Translations', 'permission_name' => 'number_translation_add'],
+            ['application_name' => 'Number Translations', 'permission_name' => 'number_translation_edit'],
+            ['application_name' => 'Number Translations', 'permission_name' => 'number_translation_delete'],
             ['application_name' => 'Directory Services', 'permission_name' => 'ldap_directory_view'],
             ['application_name' => 'Directory Services', 'permission_name' => 'ldap_directory_create'],
             ['application_name' => 'Directory Services', 'permission_name' => 'ldap_directory_update'],
@@ -279,6 +283,10 @@ class DatabaseSeeder extends Seeder
         $permissionsByGroup = [
             'superadmin' => [
                 'scheduled_jobs_manage',
+                'number_translation_view',
+                'number_translation_add',
+                'number_translation_edit',
+                'number_translation_delete',
                 'message_settings_list_view',
                 'extension_suspended',
                 'mobile_apps_password_url_show',
@@ -903,6 +911,14 @@ class DatabaseSeeder extends Seeder
     {
         $settings = [
             [
+                'default_setting_category'      => 'dialplan',
+                'default_setting_subcategory'   => 'outbound_route_default_scope',
+                'default_setting_name'          => 'text',
+                'default_setting_value'         => 'global',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Outbound Route Default Scope. Options: global (default), current_domain. Sets the initial domain and context for new outbound routes.',
+            ],
+            [
                 'default_setting_category'      => 'pms',
                 'default_setting_subcategory'   => 'pms_provider',
                 'default_setting_name'          => 'text',
@@ -1229,6 +1245,22 @@ class DatabaseSeeder extends Seeder
                 'default_setting_value'         => "auto",
                 'default_setting_enabled'       => true,
                 'default_setting_description'   => "Grandstream time zone",
+            ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'grandstream_firmware_upgrade_confirmation',
+                'default_setting_name'          => 'text',
+                'default_setting_value'         => 'Yes',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Require confirmation before a Grandstream firmware upgrade. Use Yes or No. Default: Yes.',
+            ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'grandstream_default_ringtone',
+                'default_setting_name'          => 'numeric',
+                'default_setting_value'         => '0',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Default Grandstream ringtone: 0 = System Ringtone, 1 = Custom Ringtone 1, 2 = Custom Ringtone 2, 3 = Custom Ringtone 3, 4 = Silent. Default: 0.',
             ],
             [
                 'default_setting_category'      => 'provision',
