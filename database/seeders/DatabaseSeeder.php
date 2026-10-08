@@ -1288,11 +1288,19 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'default_setting_category'      => 'scheduled_jobs',
+                'default_setting_subcategory'   => 's3_upload_calls',
+                'default_setting_name'          => 'boolean',
+                'default_setting_value'         => "true",
+                'default_setting_enabled'       => false,
+                'default_setting_description'   => "Enables the system-wide scheduled job that automatically uploads call recordings to the configured S3 storage. ",
+            ],
+            [
+                'default_setting_category'      => 'scheduled_jobs',
                 'default_setting_subcategory'   => 's3_upload_calls_' . $this->getMacAddress(),
                 'default_setting_name'          => 'boolean',
                 'default_setting_value'         => "true",
                 'default_setting_enabled'       => false,
-                'default_setting_description'   => "Executes upload job only on the server with MAC address " . $this->getMacAddress(),
+                'default_setting_description'   => "Legacy S3 upload selection for MAC address " . $this->getMacAddress() . ".",
             ],
             [
                 'default_setting_category'      => 'scheduled_jobs',
@@ -1854,6 +1862,22 @@ class DatabaseSeeder extends Seeder
                 'default_setting_value'         => '',
                 'default_setting_enabled'       => false,
                 'default_setting_description'   => "It configures the password of a specific wireless network.",
+            ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'yealink_outbound_proxy_enable',
+                'default_setting_name'          => 'text',
+                'default_setting_value'         => '0',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Enable the Yealink outbound proxy when a primary proxy is configured. 0-Disabled. 1-Enabled.',
+            ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'yealink_backlight_time',
+                'default_setting_name'          => 'text',
+                'default_setting_value'         => '600',
+                'default_setting_enabled'       => false,
+                'default_setting_description'   => 'Backlight timeout in seconds. Enable to override the provisioning template default; supported values depend on the phone model.',
             ],
 
 
