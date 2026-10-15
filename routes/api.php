@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\LocationsController;
 use App\Http\Controllers\Api\ProvisioningTemplateController;
 use App\Http\Controllers\BasicQueueController;
 use App\Http\Controllers\BusinessHoursController;
+use App\Http\Controllers\PagingGroupsController;
 use App\Http\Controllers\BridgeController;
 use App\Http\Controllers\CallBlockController;
 use App\Http\Controllers\CallWebhookController;
@@ -143,6 +144,7 @@ Route::group(['middleware' => ['auth:sanctum', 'api.cookie.auth']], function () 
     Route::get('/dashboard/data', [DashboardController::class, 'getData'])->name('dashboard.data');
     Route::get('/dashboard/counts', [DashboardController::class, 'getCounts'])->name('dashboard.counts');
     Route::get('/dashboard/my-extension-status', [DashboardController::class, 'getMyExtensionStatus'])->name('dashboard.my-extension-status');
+    Route::get('/dashboard/call-stats', [DashboardController::class, 'getCallStats'])->name('dashboard.call-stats');
     Route::get('/dashboard/customer-notes', [CustomerNotesController::class, 'show'])->name('dashboard.customer-notes');
     Route::put('/dashboard/customer-notes', [CustomerNotesController::class, 'update'])->name('dashboard.customer-notes.update');
 
@@ -332,6 +334,15 @@ Route::group(['middleware' => ['auth:sanctum', 'api.cookie.auth']], function () 
     Route::post('business-hours/bulk-delete', [BusinessHoursController::class, 'bulkDelete'])->name('business-hours.bulk.delete');
     Route::post('business-hours/select-all', [BusinessHoursController::class, 'selectAll'])->name('business-hours.select.all');
     Route::post('business-hours/duplicate', [BusinessHoursController::class, 'duplicate'])->name('business-hours.duplicate');
+
+    // Paging groups
+    Route::get('paging-groups/data', [PagingGroupsController::class, 'getData'])->name('paging-groups.data');
+    Route::post('paging-groups', [PagingGroupsController::class, 'store'])->name('paging-groups.store');
+    Route::put('paging-groups/{paging_group}', [PagingGroupsController::class, 'update'])->name('paging-groups.update');
+    Route::post('paging-groups/item-options', [PagingGroupsController::class, 'getItemOptions'])->name('paging-groups.item.options');
+    Route::post('paging-groups/select-all', [PagingGroupsController::class, 'selectAll'])->name('paging-groups.select.all');
+    Route::post('paging-groups/bulk-delete', [PagingGroupsController::class, 'bulkDelete'])->name('paging-groups.bulk.delete');
+    Route::post('paging-groups/bulk-toggle', [PagingGroupsController::class, 'bulkToggle'])->name('paging-groups.bulk.toggle');
 
     // Holiday Hours
     Route::resource('/holiday-hours', HolidayHoursController::class);
@@ -873,6 +884,7 @@ Route::group(['middleware' => ['auth:sanctum', 'api.cookie.auth']], function () 
     Route::get('account-settings/pms-provider', [AccountSettingsController::class, 'pmsProvider'])->name('account-settings.pms-provider');
     Route::put('account-settings/pms-provider', [AccountSettingsController::class, 'updatePmsProvider'])->name('account-settings.pms-provider.update');
     Route::put('account-settings/update', [AccountSettingsController::class, 'update'])->name('account-settings.update');
+    Route::put('account-settings/messaging', [AccountSettingsController::class, 'updateMessaging'])->name('account-settings.messaging.update');
 
     // Default Settings
     Route::get('default-settings/data', [DefaultSettingsController::class, 'data'])->name('default-settings.data');
@@ -969,11 +981,14 @@ Route::group(['middleware' => ['auth:sanctum', 'api.cookie.auth']], function () 
 
     // Messages
     Route::get('/messages/rooms', [MessageController::class, 'rooms'])->name('messages.rooms');
+    Route::post('/messages/conversations', [MessageController::class, 'prepareConversation'])->name('messages.prepare-conversation');
     Route::get('/messages/rooms/{roomId}/messages', [MessageController::class, 'roomMessages'])->name('messages.room.messages');
     Route::post('/messages/send', [MessageController::class, 'send'])->name('messages.send');
     Route::get('/messages/logs', [MessageController::class, 'logs'])->name('messages.logs');
     Route::get('/messages/data', [MessageController::class, 'getData'])->name('messages.data');
     Route::post('/messages/mark-read', [MessageController::class, 'markRead'])->name('messages.mark-read');
+    Route::post('/messages/hide-conversation', [MessageController::class, 'hideConversation'])->name('messages.hide-conversation');
+    Route::delete('/messages/conversation', [MessageController::class, 'deleteConversation'])->name('messages.delete-conversation');
     Route::post('/messages/retry', [MessageController::class, 'retry'])->name('messages.retry');
 
     // Message Settings
