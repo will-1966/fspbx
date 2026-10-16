@@ -941,7 +941,7 @@ class DatabaseSeeder extends Seeder
                 'default_setting_name'          => 'boolean',
                 'default_setting_value'         => 'false',
                 'default_setting_enabled'       => true,
-                'default_setting_description'   => 'Initial photo compression setting for newly created accounts only. Existing accounts are unchanged. Manage each account under Account Settings > Messaging.',
+                'default_setting_description'   => 'System default for outbound photo compression. Accounts inherit this unless overridden under Account Settings > Messaging.',
             ],
             [
                 'default_setting_category'      => 'messaging',
@@ -949,7 +949,7 @@ class DatabaseSeeder extends Seeder
                 'default_setting_name'          => 'boolean',
                 'default_setting_value'         => 'true',
                 'default_setting_enabled'       => true,
-                'default_setting_description'   => 'Initial photo conversion setting for newly created accounts only. Existing accounts are unchanged. Manage each account under Account Settings > Messaging.',
+                'default_setting_description'   => 'System default for outbound JPEG conversion. Accounts inherit this unless overridden under Account Settings > Messaging.',
             ],
             [
                 'default_setting_category'      => 'pms',
@@ -1342,6 +1342,30 @@ class DatabaseSeeder extends Seeder
                 'default_setting_value'         => '0',
                 'default_setting_enabled'       => true,
                 'default_setting_description'   => 'Default Grandstream ringtone: 0 = System Ringtone, 1 = Custom Ringtone 1, 2 = Custom Ringtone 2, 3 = Custom Ringtone 3, 4 = Silent. Default: 0.',
+            ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'grandstream_loop_current_disconnect',
+                'default_setting_name'          => 'numeric',
+                'default_setting_value'         => '0',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Loop Current Disconnect for both Grandstream HT80x V2 FXS ports (P892/P893): 0 = No, 1 = Yes. Default: 0.',
+            ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'grandstream_loop_current_disconnect_duration',
+                'default_setting_name'          => 'numeric',
+                'default_setting_value'         => '200',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Loop Current Disconnect Duration for both Grandstream HT80x V2 FXS ports (P856/P857), in milliseconds. Range: 100-10000. Default: 200.',
+            ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'grandstream_polarity_reversal',
+                'default_setting_name'          => 'numeric',
+                'default_setting_value'         => '0',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Polarity Reversal for both Grandstream HT80x V2 FXS ports (P205/P865): 0 = No, 1 = Yes. Default: 0.',
             ],
             [
                 'default_setting_category'      => 'provision',
