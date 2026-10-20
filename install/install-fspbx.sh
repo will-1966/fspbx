@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set error handling
+# Set error handlingg
 set -e
 
 # Function to print success message
