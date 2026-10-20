@@ -16,5 +16,5 @@ jobs:
         uses: xalvarez/prevent-file-change-action@v3.0.0
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          # Regex pattern separating files by a pipe (|) character
+          # Regex pattern separating files by a pipe (|) character.
           pattern: 'install/esl-8\.4\.so|install/install-fspbx\.sh'
