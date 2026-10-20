@@ -1,4 +1,4 @@
-- name: Immutable Files
+  name: Immutable Files
   # You may pin to the exact commit or the version.
   # uses: asafHalely/immutable-file-action@bd0d37a0170ea1f088bba8f67714f9581e4ba621
   uses: asafHalely/immutable-file-action@v1.1
