@@ -16,6 +16,6 @@ jobs:
           fetch-depth: 0 # Crucial for change-comparison utilities
     
       - name: Immutable Files
-        uses: asafHalely/immutable-file-action@v1.1
+        uses: asafHalely/immutable-file-action@v1
         with:
           files: "install/esl-8\\.4\\.so install/install-fspbx\\.sh"
