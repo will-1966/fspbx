@@ -1,23 +1,20 @@
 name: Guard Protected Assets
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  check-immutability:
+  prevent-changes:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      contents: read
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Verify Asset Immutability
+        uses: xalvarez/prevent-file-change-action@v3.0.0
         with:
-          fetch-depth: 0 # Crucial for change-comparison utilities
-    
-      - name: Immutable Files
-        uses: asafHalely/immutable-file-action@v1
-        with:
-          files: |
-            install/esl-8.*.so
-            install/install-fspbx.sh
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          # Regex pattern separating files by a pipe (|) character
+          pattern: 'install/esl-8\.4\.so|install/install-fspbx\.sh'
