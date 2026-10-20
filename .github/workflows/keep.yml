@@ -5,3 +5,4 @@
   with:
     # List of files to be checked for immutability
     files: 
+         install/esl-8.4.so
