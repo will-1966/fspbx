@@ -1,20 +1,52 @@
 name: Guard Protected Assets
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  prevent-changes:
+  enforce-immutability:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-      contents: read
-
     steps:
-      - name: Verify Asset Immutability
-        uses: xalvarez/prevent-file-change-action@v3.0.0
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          # Regex pattern separating files by a pipe (|) character
-          pattern: 'install/esl-8\.4\.so|install/install-fspbx\.sh'
+          fetch-depth: 0 # Pulls full git commit history to accurately calculate diffs
+
+      - name: Check for Immutable File Changes
+        run: |
+          # 1. Establish the correct comparison base
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # For PRs, compare the PR source branch against the target branch base
+            echo "Evaluating changes for Pull Request..."
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          else
+            # For pushes/fork-syncs, compare the current SHA against the previous branch state
+            echo "Evaluating changes for Direct Commit / Fork Sync..."
+            # Fallback to HEAD~1 if it's a completely new branch history or first commit
+            BEFORE_SHA="${{ github.event.before }}"
+            if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
+              BEFORE_SHA="HEAD~1"
+            fi
+            CHANGED_FILES=$(git diff --name-only $BEFORE_SHA ${{ github.sha }})
+          fi
+
+          # 2. Check if the blocked files exist inside the changed files matrix
+          echo "Detected changes in the following files:"
+          echo "$CHANGED_FILES"
+          
+          VIOLATIONS=$(echo "$CHANGED_FILES" | grep -E '^(install/esl-8\.4\.so|install/install-fspbx\.sh)$' || true)
+
+          if [ ! -z "$VIOLATIONS" ]; then
+            echo "=========================================================="
+            echo " ERROR: IMMUTABILITY VIOLATION DETECTED "
+            echo "=========================================================="
+            echo "The following files are locked and cannot be modified:"
+            echo "$VIOLATIONS"
+            echo "Please revert changes to these paths to pass this gate."
+            exit 1
+          fi
+          
+          echo "Success: No protected assets were altered."
