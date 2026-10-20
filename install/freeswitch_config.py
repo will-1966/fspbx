@@ -13,7 +13,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
-# Removed upstream between 1.10.12 and 1.11.3. Do not retain their old binaries
+# Removed up stream between 1.10.12 and 1.11.3. Do not retain their old binaries
 # or load entries when upgrading; supported/custom modules are handled separately.
 RETIRED_MODULES = set("""
 mod_abstraction mod_ladspa mod_mp4 mod_mp4v2 mod_oreka mod_rad_auth mod_rss
