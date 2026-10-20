@@ -74,7 +74,7 @@ if [ -d "$INSTALL_DIR" ] && [ "$(ls -A $INSTALL_DIR 2>/dev/null)" ]; then
     print_success "Backup completed: $BACKUP_DIR"
 fi
 
-# Clone FS PBX repository
+# Clone FS PBX repository for ARM64
 print_success "Cloning FS PBX repository..."
 git clone --depth 1 https://github.com/will-1966/fspbx.git $INSTALL_DIR
 print_success "FS PBX repository cloned successfully."
